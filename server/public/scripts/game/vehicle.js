@@ -160,7 +160,7 @@ function(THREE, psim, collision, util) {
     output.clutch = 1;
 
     // Disengage clutch when using handbrake.
-    if (output.handbrake >= 0.5 && !vehicle.cfg.wings) output.clutch = 0;
+    //if (output.handbrake >= 0.5 && !vehicle.cfg.wings) output.clutch = 0;
   };
 
   exports.Vehicle = function(sim, config) {
@@ -374,14 +374,17 @@ function(THREE, psim, collision, util) {
     // Compute some data about vehicle's current state.
     var differentialAngVel = 0;
     var wheelLateralForce = 0;
+    var EffectiveDrive = 0
     for (c = 0; c < this.wheels.length; ++c) {
       var wheel = this.wheels[c];
       var driveFactor = wheel.cfg.drive || 0;
-      differentialAngVel += wheel.spinVel * driveFactor;
+      var isDriven = !(controls.handbrake > 0.5 && wheel.cfg.handbrake)
+      differentialAngVel += wheel.spinVel * driveFactor * isDriven;
+      EffectiveDrive += driveFactor * isDriven
       var turnFactor = wheel.cfg.turn || 0;
       wheelLateralForce += wheel.frictionForce.x * turnFactor;
     }
-    differentialAngVel /= this.totalDrive;
+    differentialAngVel /= EffectiveDrive;
     this.differentialAngVel = differentialAngVel;
 
     // If we're in gear, lock engine speed to differential.
@@ -567,7 +570,8 @@ function(THREE, psim, collision, util) {
       var wheel = this.wheels[c];
       var wheelTorque = wheel.frictionForce.y * 0.3;
       // Viscous 2-way LSD.
-      if (wheel.cfg.drive) {
+      var isDriven = !(controls.handbrake > 0.5 && wheel.cfg.handbrake)
+      if (wheel.cfg.drive && isDriven) {
         var diffSlip = wheel.spinVel - differentialAngVel;
         var diffTorque = diffSlip * LSD_VISCOUS_CONSTANT;
         wheelTorque += (perWheelTorque - diffTorque) * wheel.cfg.drive;
