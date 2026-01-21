@@ -110,6 +110,7 @@ define([
         this.$el.on('change', '.statusbarcar input:radio', function(event) {
           let left;
           prefs.car = this.value;
+          window.__CAR__ = this.value
           const available = (left = (root.user != null ? root.user.cars() : undefined)) != null ? left : [ 'ArbusuG' ];
           if (!Array.from(available).includes(prefs.car)) {
             const purchaseUrl = {

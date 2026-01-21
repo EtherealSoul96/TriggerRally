@@ -204,7 +204,8 @@ define([
           this.$nextButton.toggleClass('hidden', !nextTrackId);
           this.$nextButton.attr('href', `${window.BASE_PATH}/track/${nextTrackId}/drive`);
           if (this.replayRun && (this.replayRun.track.id !== root.track.id)) { this.setRun(null); }
-          this.carId = (carId = (left = root.getCarId()) != null ? left : 'ArbusuG');
+          //this.carId = (carId = (left = root.getCarId()) != null ? left : 'ArbusuG');
+          this.carId = carId = window.__CAR__ || 'ArbusuG'
           const carModel = models.Car.findOrCreate(carId);
           return carModel.fetch({
             success: () => {
